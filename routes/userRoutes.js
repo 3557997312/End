@@ -11,13 +11,13 @@ router.post('/', userController.createUser);
 // 获取所有用户
 router.get('/', userController.getUsers);
 
-// 获取指定ID的用户
-router.get('/:UserID', userController.getUserById);
+// 根据用户名获取用户信息
+router.get('/:UserName', userController.getUser);
 
-// 更新指定ID的用户
-router.put('/:UserID', userController.updateUserById);
+// 根据用户名更新用户信息
+router.put('/', userController.updateUser);
 
-// 删除指定ID的用户
-router.delete('/:UserID', userController.deleteUserById);
+// 根据用户名删除用户信息
+router.delete('/:UserName', userController.deleteUser);
 
 module.exports = router;

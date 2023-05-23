@@ -5,14 +5,22 @@ const User = require('../models/user');
 
 // 创建用户
 exports.createUser = async (req, res) => {
-  try {
-    const { UserName, Password, Role } = req.body;
-    
-    const user = await User.create({ UserName, Password, Role });
+  const { UserName, Password, Role } = req.body;
 
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  try {
+    const salt = await bcrypt.genSalt(10);
+
+    const hashedPassword = await bcrypt.hash(Password, salt);
+
+    const user = await User.create({
+      UserName,
+      Password: hashedPassword,
+      Role,
+    });
+
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -27,49 +35,63 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-// 获取指定ID的用户
-exports.getUserById = async (req, res) => {
+// 根据用户名获取用户信息
+exports.getUser = async (req, res) => {
+  const { UserName } = req.params;
+
   try {
-    const { UserID } = req.params;
-    const user = await User.findByPk(UserID);
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ message: 'User not found' });
+    const user = await User.findOne({ where: { UserName } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    res.json({ user });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// 更新指定ID的用户
-exports.updateUserById = async (req, res) => {
+// 根据用户名更新用户信息
+exports.updateUser = async (req, res) => {
+  const { UserName, updateData } = req.body;
+
   try {
-    const { UserID } = req.params;
-    const { UserName, Password, Role } = req.body;
-    const user = await User.findByPk(UserID);
-    if (user) {
-      await user.update({ UserName, Password, Role });
-      res.json(user);
-    } else {
-      res.status(404).json({ message: 'User not found' });
+    const user = await User.findOne({ where: { UserName } });
+
+    if (!user) {
+      return res.status(404).json({ messaeg: 'User not found' });
     }
+    
+    if (updateData.Password) {
+      user.Password = updateData.Password;
+    }
+
+    if (updateData.Role) {
+      user.Role = updateData.Role;
+    }
+
+    await user.save();
+
+    res.json({ message: 'User update successful' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// 删除指定ID的用户
-exports.deleteUserById = async (req, res) => {
+// 根据用户名删除用户信息
+exports.deleteUser = async (req, res) => {
+  const { UserName } = req.params;
   try {
-    const { UserID } = req.params;
-    const user = await User.findByPk(UserID);
-    if (user) {
-      await user.destroy();
-      res.json({ message: 'User deleted successfully' });
-    } else {
-      res.status(404).json({ message: 'User not found' });
+    const user = await User.findOne({ where: { UserName } });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    await user.destroy();
+
+    res.json({ message: 'User delete successful' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

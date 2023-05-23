@@ -16,29 +16,28 @@ exports.getAllFiberCores = async (req, res) => {
       ]
     });
     res.json({ fiberCores });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to get fiber cores' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
 // 获取参数获取满足条件的所有纤芯信息
 exports.getFiberCore = async (req, res) => {
-  const {SiteID,BoxID,PanelID,CoreNumber,status} = req.params;
+  const { SiteID, BoxID, PanelID, CoreNumber, Status } = req.params;
 
   try {
     let condition = {};
 
     if (SiteID) {
-      const site = Site.SiteID;
+      const site = await Site.findByPk(SiteID);
       if (!site) {
-        return res.status(404).json({ message: 'Site not found' });
+        return res.status(404).json({ message: 'SiteID with Site not found' });
       }
       condition.SiteID = SiteID;
     }
 
     if (BoxID) {
-      const box = ODF.BoxID;
+      const box = await ODF.findByPk(BoxID);
       if (!box) {
         return res.status(404).json({ message: 'Odf not found' });
       }
@@ -46,7 +45,7 @@ exports.getFiberCore = async (req, res) => {
     }
 
     if (PanelID) {
-      const panel = FiberPanel.PanelID;
+      const panel = await FiberPanel.findByPk(PanelID);
       if (!panel) {
         return res.status(404).json({ message: 'Panel not found' });
       }
@@ -57,8 +56,8 @@ exports.getFiberCore = async (req, res) => {
       condition.CoreNumber = CoreNumber;
     }
 
-    if (status) {
-      condition.status = status
+    if (Status) {
+      condition.Status = Status
     }
 
     const cores = await FiberCore.findAll({ where: condition });
@@ -93,7 +92,7 @@ exports.createFiberCore = async (req, res) => {
       return res.status(404).json({ message: 'Panel not found' });
     }
 
-    const fiberCore = await FiberCore.create({
+    await FiberCore.create({
       SiteID,
       BoxID,
       PanelID,
@@ -101,7 +100,7 @@ exports.createFiberCore = async (req, res) => {
       Status,
     });
 
-    res.status(201).json({ fiberCore });
+    res.status(201).json({ message: 'Core created successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -115,14 +114,26 @@ exports.updateFiberCore = async (req, res) => {
     let condition = {};
 
     if (parameter.SiteID) {
+      const site = await Site.findByPk(parameter.SiteID);
+      if (!site) {
+        return res.status(404).json({ message: 'SiteID with Site not found' });
+      }
       condition.SiteID = parameter.SiteID;
     }
 
     if (parameter.BoxID) {
+      const box = await ODF.findByPk(parameter.BoxID);
+      if (!box) {
+        return res.status(404).json({ message: 'BoxID with Odf not found' });
+      }
       condition.BoxID = parameter.BoxID;
     }
 
     if (parameter.PanelID) {
+      const panel = await findByPk(parameter.PanelID);
+      if (!panel) {
+        return res.status(404).json({ message: 'PanelID with FiberPanel not found' });
+      }
       condition.PanelID = parameter.PanelID;
     }
 
@@ -150,27 +161,27 @@ exports.updateFiberCore = async (req, res) => {
 
     const core = cores[0];
 
-    const site = core.SiteID;
-    if (!site) {
-      return res.status(404).json({ message: 'Site not found' });
-    }
     if (updatedData.SiteID) {
+      const site = await Site.findByPk(updatedData.SiteID);
+      if (!site) {
+        return res.status(404).json({ message: 'SiteID with Site not found' });
+      }
       core.SiteID = updatedData.SiteID;
     }
 
-    const box = core.BoxID;
-    if (!box) {
-      return res.status(404).json({ message: 'Odf not found' });
-    }
     if (updatedData.BoxID) {
+      const box = await ODF.findByPk(updatedData.BoxID);
+      if (!box) {
+        return res.status(404).json({ message: 'BoxID with Odf not found' });
+      }
       core.BoxID = updatedData.BoxID;
     }
 
-    const panel = core.PanelID;
-    if (!panel) {
-      return res.status(404).json({ message: 'Panel not found' });
-    }
     if (updatedData.PanelID) {
+      const panel = await findByPk(updatedData.PanelID);
+      if (!panel) {
+        return res.status(404).json({ message: 'PanelID with FiberPanel not found' });
+      }
       core.PanelID = updatedData.PanelID;
     }
 
@@ -198,26 +209,27 @@ exports.deleteFiberCore = async (req, res) => {
     let condition = {};
     
     if (SiteID) {
-      const site = Site.SiteID;
+      const site = await Site.findByPk(SiteID);
       if (!site) {
-        return res.status(404).json({ message: 'Site not found' });
+        return res.status(404).json({ message: 'SiteID with Site not found' });
       }
       condition.SiteID = SiteID;
     }
 
     if (BoxID) {
-      const box = ODF.BoxID;
+      const box = await ODF.findByPk(BoxID);
       if (!box) {
-        return res.status(404).json({ message: 'Odf not found' });
+        return res.status(404).json({ message: 'BoxID with Odf not found' });
       }
       condition.BoxID = BoxID;
     }
 
     if (PanelID) {
-      const panel = FiberPanel.PanelID;
+      const panel = await FiberPanel.findByPk(PanelID);
       if (!panel) {
-        return res.status(404).json({ message: 'Panel not found' });
+        return res.status(404).json({ message: 'PanelID with FiberPanel not found' });
       }
+      condition.PanelID = PanelID;
     }
 
     if (CoreNumber) {

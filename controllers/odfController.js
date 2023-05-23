@@ -29,7 +29,7 @@ exports.getOdf = async (req, res) => {
     }
 
     if (SiteID) {
-      const site = Site.SiteID;
+      const site = await Site.findByPk(SiteID);
       if (!site) {
         return res.status({ message: 'Site not found' });
       }
@@ -62,14 +62,14 @@ exports.createBox = async (req, res) => {
     }
 
     // 创建新的配线单元盒
-    const box = await ODF.create({
+    await ODF.create({
       SiteID,
       BoxName,
       MaxDiscCount,
     });
 
     // 返回创建成功的配线单元盒信息
-    res.status(201).json({ box });
+    res.status(201).json({ message: 'Odf created successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -87,6 +87,10 @@ exports.updateOdf = async (req, res) => {
     }
 
     if (parameter.SiteID) {
+      const site = await Site.findByPk(parameter.SiteID);
+      if (!site) {
+        return res.status(404).json({ message: 'Site not found' });
+      }
       condition.SiteID = parameter.SiteID;
     }
 
@@ -113,11 +117,11 @@ exports.updateOdf = async (req, res) => {
       box.BoxName = updatedData.BoxName;
     }
 
-    const site = box.SiteID;
-    if (!site) {
-      return res.status(404).json({ message: 'Site not found' });
-    }
     if (updatedData.SiteID) {
+      const site = await Site.findByPk(updatedData.SiteID);
+      if (!site) {
+        return res.status(404).json({ message: 'Site not found' });
+      }
       box.SiteID = updatedData.SiteID;
     }
 
@@ -147,7 +151,7 @@ exports.deleteOdf = async (req, res) => {
     }
 
     if (SiteID) {
-      const site = Site.SiteID;
+      const site = await Site.findByPk(SiteID);
       if (!site) {
         return res.status(404).json({ message: 'Site not found' });
       }

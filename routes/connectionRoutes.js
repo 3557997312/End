@@ -6,19 +6,23 @@ const router = express.Router();
 // 导入站点控制器
 const connectionController = require('../controllers/connectionController');
 
-// 获取所有连接
+// 获取所有连接信息
 router.get('/', connectionController.getAllConnections);
 
-// 获取指定ID的连接
-router.get('/:ConnectionID', connectionController.getConnectionById);
+// 根据参数获取所有连接信息
+router.get('/:BoxID1', connectionController.getConnection);
+router.get('/:BoxID2', connectionController.getConnection);
+
+// 根据参数获取指定的一个连接
+router.get('/:BoxID1/:BoxID2', connectionController.getConnection)
 
 // 创建连接
 router.post('/', connectionController.createConnection);
 
-// 更新指定ID的连接
-router.put('/:ConnectionID', connectionController.updateConnectionByID);
+// 根据参数更新连接信息
+router.put('/:BoxID1/:BoxID2', connectionController.updateConnection);
 
-// 删除指定ID的连接
-router.delete('/:ConnectionID', connectionController.deleteConnectionByID);
+// 根据参数删除连接信息
+router.delete('/:BoxID1/:BoxID2', connectionController.deleteConnection);
 
 module.exports = router;

@@ -30,17 +30,17 @@ exports.getFiberPanel = async (req, res) => {
     let condition = {};
 
     if (SiteID) {
-      const site = Site.SiteID;
+      const site = await Site.findByPk(SiteID);
       if (!site) {
-        return res.status(404).json({ message: 'Site not found' });
+        return res.status(404).json({ message: 'SiteID with Site not found' });
       }
       condition.SiteID = SiteID;
     }
 
     if (BoxID) {
-      const box = ODF.BoxID;
+      const box = await ODF.findByPk(BoxID);
       if (!box) {
-        return res.status(404).json({ message: 'Odf not found' });
+        return res.status(404).json({ message: 'BoxID with Odf not found' });
       }
       condition.BoxID = BoxID;
     }
@@ -71,21 +71,21 @@ exports.createFiberPanel = async (req, res) => {
     // 检查SiteID对应的站点是否存在
     const site = await Site.findByPk(SiteID);
     if (!site) {
-      return res.status(404).json({ message: 'Site not found' });
+      return res.status(404).json({ message: 'SiteID with Site not found' });
     }
 
     const box = await ODF.findByPk(BoxID);
     if (!box) {
-      return res.status(404).json({ message: 'Odf not found' });
+      return res.status(404).json({ message: 'BoxID with Odf not found' });
     }
 
-    const fiberPanel = await FiberPanel.create({
+    await FiberPanel.create({
       SiteID,
       BoxID,
       PanelName,
     });
 
-    res.status(201).json({ fiberPanel });
+    res.status(201).json({ message: 'Panel created successfully' });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -99,10 +99,18 @@ exports.updateFiberPanel = async (req, res) => {
     let condition = {};
 
     if (parameter.SiteID) {
+      const site = await Site.findByPk(parameter.SiteID);
+      if (!site) {
+        return res.status(404).json({message:'SiteID with Site not found'})
+      }
       condition.SiteID = parameter.SiteID;
     }
 
     if (parameter.BoxID) {
+      const box = await ODF.findByPk(parameter.BoxID);
+      if (!box) {
+        return res.status(404).json({ message: 'BoxID with Odf not found' });
+      }
       condition.BoxID = parameter.BoxID;
     }
 
@@ -127,20 +135,19 @@ exports.updateFiberPanel = async (req, res) => {
     }
 
     const panel = panels[0];
-
-    const site = panel.SiteID;
-    if (!site) {
-      return res.status(404).json({ message: 'Site not found' });
-    }
     if (updatedData.SiteID) {
+      const site = await Site.findByPk(updatedData.SiteID);
+      if (!site) {
+        return res.status(404).json({ message: 'SiteID with Site not found' });
+      }
       panel.SiteID = updatedData.SiteID;
     }
 
-    const box = panel.BoxID;
-    if (!box) {
-      return res.status(404).json({ message: 'Odf not found' });
-    }
     if (updatedData.BoxID) {
+      const box = await ODF.findByPk(updatedData.BoxID);
+      if (!box) {
+        return res.status(404).json({ message: 'BoxID with Odf not found' });
+      }
       panel.BoxID = updatedData.BoxID;
     }
 
@@ -164,17 +171,17 @@ exports.deleteFiberPanel = async (req, res) => {
     let condition = {};
 
     if (SiteID) {
-      const site = Site.SiteID;
+      const site = await Site.findByPk(SiteID);
       if (!site) {
-        return res.status(404).json({ message: 'Site not found' });
+        return res.status(404).json({ message: 'SiteID with Site not found' });
       }
       condition.SiteID = SiteID;
     }
 
     if (BoxID) {
-      const box = ODF.BoxID;
+      const box = await ODF.findByPk(BoxID);
       if (!box) {
-        return res.satus(404).json({ message: 'Odf not found' });
+        return res.satus(404).json({ message: 'BoxID with Odf not found' });
       }
       condition.BoxID = BoxID;
     }
@@ -200,14 +207,6 @@ exports.deleteFiberPanel = async (req, res) => {
     }
 
     const panel = panels[0];
-
-    const PanelID = panel.PanelID;
-
-    const core = await FiberCore.count({ where: { PanelID: PanelID } });
-
-    if (core > 0) {
-      return res.status(400).json({ message: 'fiberCore in the panel and it cannot be deleted' });
-    }
 
     await panel.destroy();
 

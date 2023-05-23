@@ -91,7 +91,7 @@ exports.createSite = async (req, res) => {
     const savedSite = await newSite.save();
 
     // 返回创建成功的站点信息
-    res.status(201).json({ savedSite });
+    res.status(201).json({ message: 'Site created successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

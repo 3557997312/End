@@ -28,26 +28,102 @@ exports.getAllConnections = async (req, res) => {
       ]
     });
     
-    res.json(connections);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ connections });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// 获取指定ID的连接
-exports.getConnectionById = async (req, res) => {
+// 根据参数获取连接
+exports.getConnection = async (req, res) => {
+  const { BoxID1, BoxID2 } = req.params;
+
   try {
-    const { ConnectionID } = req.params;
+    let connections;
 
-    const connection = await Connection.findByPk(ConnectionID);
+    if (BoxID1 && BoxID2) {
+      if (BoxID1 === BoxID2) {
+        return res.status(400).json({ message: 'BoxID1 cannot be the same as BoxID2' });
+      }
 
-    if (!connection) {
-      return res.status(404).json({ message: 'Connection not found' });
+      const box1 = await ODF.findByPk(BoxID1);
+      if (!box1) {
+        return res.status(404).json({ message: 'BoxID1 with Odf not found' });
+      }
+
+      const box2 = await ODF.findByPk(BoxID2);
+      if (!box2) {
+        return res.status(404).json({ message: 'BoxID2 with Odf not found' });
+      }
+      
+      connections = await Connection.findAll({
+        where: { BoxID1, BoxID2 },
+        include: [
+          {
+            model: ODF,
+            as: 'ODF1',
+            where: {
+              BoxID: Sequelize.literal('`Connection`.`BoxID1`')
+            },
+            required: false
+          },
+          {
+            model: ODF,
+            as: 'ODF2',
+            where: {
+              BoxID: Sequelize.literal('`Connection`.`BoxID2`')
+            },
+            required: false
+          }
+      ],
+      });
+    }
+    else if (BoxID1) {
+      const box1 = await ODF.findByPk(BoxID1);
+      if (!box1) {
+        return res.status(404).json({ message: 'BoxID1 with Odf not found' });
+      }
+
+      connections = await Connection.findAll({
+        where: { BoxID1 },
+        include: [
+          {
+            model: ODF,
+            as: 'ODF1',
+            where: {
+              BoxID: Sequelize.literal('`Connection`.`BoxID1`')
+            },
+            required: false
+          },
+        ]
+      });
+    }
+    else if (BoxID2) {
+      const box2 = await ODF.findByPk(BoxID2);
+      if (!box2) {
+        return res.status(404).json({ message: 'BoxID2 with Odf not found' });
+      }
+      connections = await Connection.findAll({
+        where: { BoxID2 },
+        include: [
+          {
+            model: ODF,
+            as: 'ODF2',
+            where: {
+              BoxID: Sequelize.literal('`Connection`.`BoxID2`')
+            },
+            required: false
+          },
+        ]
+      });
+    }
+    else {
+      return res.status(400).json({ message: 'Missing parameters' });
     }
 
-    res.json(connection);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ connections });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -56,39 +132,74 @@ exports.createConnection = async (req, res) => {
   try {
     const { BoxID1, BoxID2 } = req.body;
 
+    if (BoxID1 === BoxID2) {
+      return res.status(400).json({ message: 'The same box cannot be connected' });
+    }
+
     // 验证 BoxID1 是否存在
-    const odf1 = await ODF.findByPk(BoxID1);
-    if (!odf1) {
+    const box1 = await ODF.findByPk(BoxID1);
+    if (!box1) {
       return res.status(404).json({ message: 'ODF with BoxID1 not found' });
     }
 
     // 验证 BoxID2 是否存在
-    const odf2 = await ODF.findByPk(BoxID2);
-    if (!odf2) {
+    const box2 = await ODF.findByPk(BoxID2);
+    if (!box2) {
       return res.status(404).json({ message: 'ODF with BoxID2 not found' });
     }
 
-    const connection = await Connection.create({ BoxID1, BoxID2 });
+    await Connection.create({ BoxID1, BoxID2 });
 
-    res.status(201).json(connection);
+    res.status(201).json({ message: 'Connection created successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// 更新指定ID的连接
-exports.updateConnectionByID = async (req, res) => {
-  try {
-    const { ConnectionID } = req.params;
-    const { BoxID1, BoxID2 } = req.body;
+// 根据参数更新连接信息
+exports.updateConnection = async (req, res) => {
+  const { updatedData } = req.body;
+  const { BoxID1, BoxID2 } = req.params;
 
-    const connection = await Connection.findByPk(ConnectionID);
+  try {
+    if (BoxID1 === BoxID2) {
+      return res.status(400).json({ message: 'BoxID1 cannot be the same as BoxID2' });
+    }
+
+    const box1 =await ODF.findByPk(BoxID1);
+    if (!box1) {
+      return res.status(404).json({ message: 'BoxID1 with Odf not found' });
+    }
+
+    const box2 = await ODF.findByPk(BoxID2);
+    if (!box2) {
+      return res.status(404).json({ message: 'BoxID2 with Odf not found' });
+    }
+    const connection = await Connection.findOne({
+      where: { BoxID1, BoxID2 },
+    });
 
     if (!connection) {
       return res.status(404).json({ message: 'Connection not found' });
     }
 
-    await connection.update({ BoxID1, BoxID2 });
+    if (updatedData.BoxID1) {
+      const box = await ODF.findByPk(updatedData.BoxID1);
+      if (!box) {
+        return res.status(404).json({ message: 'BoxID1 with Odf not found' });
+      }
+      connection.BoxID1 = BoxID1;
+    }
+
+    if (updatedData.BoxID2) {
+      const box = await ODF.findByPk(updatedData.BoxID2);
+      if (!box) {
+        return res.status(404).json({ message: 'BoxID2 with Odf not found' });
+      }
+      connection.BoxID2 = BoxID2;
+    }
+
+    await connection.save();
 
     res.json({ message: 'Connection updated successfully' });
   } catch (error) {
@@ -96,12 +207,24 @@ exports.updateConnectionByID = async (req, res) => {
   }
 };
 
-// 删除指定ID的连接
-exports.deleteConnectionByID = async (req, res) => {
+// 根据参数删除连接信息
+exports.deleteConnection = async (req, res) => {
+  const { BoxID1, BoxID2 } = req.params;
+  
   try {
-    const { ConnectionID } = req.params;
+    const box1 = await ODF.findByPk(BoxID1);
+    if (!box1) {
+      return res.status(404).json({ message: 'BoxID1 with Odf not found' });
+    }
 
-    const connection = await Connection.findByPk(ConnectionID);
+    const box2 = await ODF.findByPk(BoxID2);
+    if (!box2) {
+      return res.status(404).json({ message: 'BoxID2 with Odf not found' });
+    }
+
+    const connection = await Connection.findOne({
+      where: { BoxID1, BoxID2 },
+    });
 
     if (!connection) {
       return res.status(404).json({ message: 'Connection not found' });
