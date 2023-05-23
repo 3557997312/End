@@ -14,7 +14,7 @@ exports.getAllFiberPanels = async (req, res) => {
         { model: ODF }
       ]
     });
-    res.json(fiberPanels);
+    res.json({ fiberPanels });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -30,10 +30,18 @@ exports.getFiberPanel = async (req, res) => {
     let condition = {};
 
     if (SiteID) {
+      const site = Site.SiteID;
+      if (!site) {
+        return res.status(404).json({ message: 'Site not found' });
+      }
       condition.SiteID = SiteID;
     }
 
     if (BoxID) {
+      const box = ODF.BoxID;
+      if (!box) {
+        return res.status(404).json({ message: 'Odf not found' });
+      }
       condition.BoxID = BoxID;
     }
 
@@ -49,7 +57,7 @@ exports.getFiberPanel = async (req, res) => {
       return res.status(404).json({ message: 'Panel not found' });
     }
 
-    res.json(panels);
+    res.json({ panels });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -77,7 +85,7 @@ exports.createFiberPanel = async (req, res) => {
       PanelName,
     });
 
-    res.status(201).json(fiberPanel);
+    res.status(201).json({ fiberPanel });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -110,7 +118,6 @@ exports.updateFiberPanel = async (req, res) => {
 
     if (panels.length > 1) {
       const panelList = panels.map(panel => ({
-        PanelID: panel.PanelID,
         SiteID: panel.SiteID,
         BoxID:panel.BoxID,
         PanelName: panel.PanelName,
@@ -125,7 +132,6 @@ exports.updateFiberPanel = async (req, res) => {
     if (!site) {
       return res.status(404).json({ message: 'Site not found' });
     }
-
     if (updatedData.SiteID) {
       panel.SiteID = updatedData.SiteID;
     }
@@ -134,7 +140,6 @@ exports.updateFiberPanel = async (req, res) => {
     if (!box) {
       return res.status(404).json({ message: 'Odf not found' });
     }
-
     if (updatedData.BoxID) {
       panel.BoxID = updatedData.BoxID;
     }
@@ -151,7 +156,7 @@ exports.updateFiberPanel = async (req, res) => {
   }
 };
 
-// 删除指定ID的纤盘
+// 根据参数删除纤盘的信息
 exports.deleteFiberPanel = async (req, res) => {
   const { SiteID, BoxID, PanelName } = req.params;
 
@@ -159,10 +164,18 @@ exports.deleteFiberPanel = async (req, res) => {
     let condition = {};
 
     if (SiteID) {
+      const site = Site.SiteID;
+      if (!site) {
+        return res.status(404).json({ message: 'Site not found' });
+      }
       condition.SiteID = SiteID;
     }
 
     if (BoxID) {
+      const box = ODF.BoxID;
+      if (!box) {
+        return res.satus(404).json({ message: 'Odf not found' });
+      }
       condition.BoxID = BoxID;
     }
 
@@ -186,7 +199,19 @@ exports.deleteFiberPanel = async (req, res) => {
       return res.json({ panelList });
     }
 
-    res.json({ message: 'Fiber panel deleted successfully' });
+    const panel = panels[0];
+
+    const PanelID = panel.PanelID;
+
+    const core = await FiberCore.count({ where: { PanelID: PanelID } });
+
+    if (core > 0) {
+      return res.status(400).json({ message: 'fiberCore in the panel and it cannot be deleted' });
+    }
+
+    await panel.destroy();
+
+    res.json({ message: 'Panel deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

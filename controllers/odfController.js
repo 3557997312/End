@@ -9,7 +9,7 @@ exports.getAllOdfs = async (req, res) => {
   try {
     const boxes = await ODF.findAll({ include: Site });
 
-    res.json(boxes);
+    res.json({ boxes });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -29,6 +29,10 @@ exports.getOdf = async (req, res) => {
     }
 
     if (SiteID) {
+      const site = Site.SiteID;
+      if (!site) {
+        return res.status({ message: 'Site not found' });
+      }
       condition.SiteID = SiteID;
     }
 
@@ -40,7 +44,7 @@ exports.getOdf = async (req, res) => {
       return res.status(404).json({ message: 'Odf not found' });
     }
 
-    res.json(odfs);
+    res.json({ odfs });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -65,7 +69,7 @@ exports.createBox = async (req, res) => {
     });
 
     // 返回创建成功的配线单元盒信息
-    res.status(201).json(box);
+    res.status(201).json({ box });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -113,7 +117,6 @@ exports.updateOdf = async (req, res) => {
     if (!site) {
       return res.status(404).json({ message: 'Site not found' });
     }
-
     if (updatedData.SiteID) {
       box.SiteID = updatedData.SiteID;
     }
@@ -144,6 +147,10 @@ exports.deleteOdf = async (req, res) => {
     }
 
     if (SiteID) {
+      const site = Site.SiteID;
+      if (!site) {
+        return res.status(404).json({ message: 'Site not found' });
+      }
       condition.SiteID = SiteID;
     }
 
@@ -174,6 +181,8 @@ exports.deleteOdf = async (req, res) => {
     if (panels > 0) {
       return res.status(400).json({ message: 'fiberPanel in the odf and it cannot be deleted' });
     }
+
+    await box.destroy();
     
     res.json({ message: 'Odf deleted successfully' });
   } catch (err) {

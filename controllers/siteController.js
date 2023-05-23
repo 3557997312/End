@@ -9,7 +9,7 @@ exports.getAllSites = async (req, res) => {
   try {
     const sites = await Site.findAll();  // 使用 Sequelize 的 findAll 方法获取所有站点
     
-    res.status(200).json(sites);
+    res.status(200).json({ sites });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -30,7 +30,7 @@ exports.searchSites = async (req, res) => {
 
     const sites = await Site.findAll({ where: condition });
 
-    res.json(sites)
+    res.json({ sites })
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -65,7 +65,7 @@ exports.getSite = async (req, res) => {
       return res.status(404).json({ message: 'Site not found' });
     }
 
-    res.json(sites);
+    res.json({ sites });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -91,7 +91,7 @@ exports.createSite = async (req, res) => {
     const savedSite = await newSite.save();
 
     // 返回创建成功的站点信息
-    res.status(201).json(savedSite);
+    res.status(201).json({ savedSite });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

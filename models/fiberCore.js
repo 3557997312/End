@@ -12,14 +12,6 @@ const FiberCore = sequelize.define('FiberCore', {
     primaryKey: true,
     autoIncrement: true,
   },
-  CoreNumber: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  Status: {
-    type: DataTypes.STRING(45),
-    allowNull: false,
-  },
   SiteID: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -43,6 +35,14 @@ const FiberCore = sequelize.define('FiberCore', {
       model: FiberPanel,
       key: 'PanelID',
     },
+  },
+  CoreNumber: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  Status: {
+    type: DataTypes.STRING(45),
+    allowNull: false,
   },
 }, {
   timestamps: false,
