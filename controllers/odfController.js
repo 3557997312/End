@@ -54,6 +54,12 @@ exports.getOdf = async (req, res) => {
 exports.createBox = async (req, res) => {
   const { SiteID, BoxName, MaxDiscCount } = req.body;
 
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+  
+
   try {
     // 检查 SiteID 对应的站点是否存在
     const site = await Site.findByPk(SiteID);
@@ -78,6 +84,12 @@ exports.createBox = async (req, res) => {
 // 根据参数更新配线单元盒信息
 exports.updateOdf = async (req, res) => {
   const { parameter, updatedData } = req.body;
+
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+  
 
   try {
     let condition = {};
@@ -141,6 +153,12 @@ exports.updateOdf = async (req, res) => {
 exports.deleteOdf = async (req, res) => {
   const { BoxName, SiteID } = req.params;
 
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+  
+
   // const { parameter, value } = req.params;
 
   try {
@@ -177,13 +195,11 @@ exports.deleteOdf = async (req, res) => {
     }
 
     const box = boxs[0];
-    
-    const BoxID = box.BoxID;
 
-    const panels = await FiberPanel.count({ where: { BoxID: BoxID } });
+    const panels = await FiberPanel.findByPk(box.BoxID);
 
-    if (panels > 0) {
-      return res.status(400).json({ message: 'fiberPanel in the odf and it cannot be deleted' });
+    if (!panels) {
+      return res.status(400).json({ message: 'Panel in the odf and it cannot be deleted' });
     }
 
     await box.destroy();

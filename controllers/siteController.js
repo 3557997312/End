@@ -1,7 +1,7 @@
 /* 站点 */
 
 const Site = require('../models/site');
-const Odf = require('../models/odf');
+const ODF = require('../models/odf');
 const { Op } = require('sequelize');
 
 // 获取所有站点
@@ -75,6 +75,11 @@ exports.getSite = async (req, res) => {
 exports.createSite = async (req, res) => {
   const { SiteName, VoltageLevel, GeographicInfo } = req.body;
 
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+
   if (!SiteName || !VoltageLevel || !GeographicInfo) {
     return res.status(400).json({ message: '必填字段不能为空' });
   }
@@ -100,6 +105,12 @@ exports.createSite = async (req, res) => {
 // 根据参数更新对应的站点信息
 exports.updateSite = async (req, res) => {
   const { parameter, updatedData } = req.body;
+
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+  
 
   try {
     let condition = {};
@@ -158,6 +169,12 @@ exports.updateSite = async (req, res) => {
 exports.deleteSite = async (req, res) => {
   const { SiteName, VoltageLevel, GeographicInfo } = req.params;
 
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+  
+
   // const { parameter, value } = req.params;
 
   try {
@@ -195,9 +212,7 @@ exports.deleteSite = async (req, res) => {
 
     const site = sites[0];
 
-    const SiteID = site.SiteID;
-
-    const odfs = await Odf.count({ where: { SiteID: SiteID } });
+    const odfs = await ODF.count({ where: { SiteID: site.SiteID } });
 
     if (odfs > 0) {
       return res.status(400).json({ message: 'box in the site and it cannot be deleted' });

@@ -1,24 +1,56 @@
 /* 用户 */
 
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+require('dotenv').config();
 
 // 创建用户
 exports.createUser = async (req, res) => {
   const { UserName, Password, Role } = req.body;
 
   try {
+    // 检查当前用户的权限
+    if (req.user.Role !== 'admin') {
+      return res.status(403).json({ message: 'no permission' });
+    }
+
     const salt = await bcrypt.genSalt(10);
 
     const hashedPassword = await bcrypt.hash(Password, salt);
 
-    const user = await User.create({
+    await User.create({
       UserName,
       Password: hashedPassword,
       Role,
     });
 
     res.status(201).json({ message: 'User created successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// 用户登录
+exports.login = async (req, res) => {
+  const { UserName, Password } = req.body;
+  try {
+    const user = await User.findOne({ where: { UserName } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(Password, user.Password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    const secretKey = process.env.SECRET_KEY;
+
+    const token = jwt.sign({UserID: user.UserID}, secretKey);
+
+    res.json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -57,6 +89,11 @@ exports.updateUser = async (req, res) => {
   const { UserName, updateData } = req.body;
 
   try {
+    // 检查当前用户权限
+    if (req.user.Role !== 'admin') {
+      return res.status(403).json({ message: 'no permission' });
+    }
+
     const user = await User.findOne({ where: { UserName } });
 
     if (!user) {
@@ -82,7 +119,13 @@ exports.updateUser = async (req, res) => {
 // 根据用户名删除用户信息
 exports.deleteUser = async (req, res) => {
   const { UserName } = req.params;
+
   try {
+    // 检查当前用户权限
+    if (req.user.Role !== 'admin') {
+      return res.status(403).json({ message: 'no permission' });
+    }
+
     const user = await User.findOne({ where: { UserName } });
     
     if (!user) {

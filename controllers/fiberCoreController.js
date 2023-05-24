@@ -76,6 +76,12 @@ exports.getFiberCore = async (req, res) => {
 exports.createFiberCore = async (req, res) => {
   const { SiteID, BoxID, PanelID, CoreNumber, Status } = req.body;
 
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+  
+
   try {
     const site = await Site.findByPk(SiteID);
     if (!site) {
@@ -108,7 +114,13 @@ exports.createFiberCore = async (req, res) => {
 
 // 根据参数更新对应纤芯信息
 exports.updateFiberCore = async (req, res) => {
-  const { parameter,updatedData } = req.body;
+  const { parameter, updatedData } = req.body;
+  
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+  
 
   try {
     let condition = {};
@@ -204,6 +216,12 @@ exports.updateFiberCore = async (req, res) => {
 // 根据参数删除对应纤芯
 exports.deleteFiberCore = async (req, res) => {
   const { SiteID, BoxID, PanelID, CoreNumber, Status } = req.params;
+
+  // 检查当前用户的权限
+  if (req.user.Role !== 'admin') {
+    return res.status(403).json({ message: 'no permission' });
+  }
+  
 
   try {
     let condition = {};
