@@ -71,7 +71,7 @@ exports.getSite = async (req, res) => {
   }
 };
 
-// 创建新站点
+// 新建站点
 exports.createSite = async (req, res) => {
   const { SiteName, VoltageLevel, GeographicInfo } = req.body;
 
@@ -80,7 +80,6 @@ exports.createSite = async (req, res) => {
   }
 
   try {
-    // 创建新的站点对象
     await Site.create({
       SiteName,
       VoltageLevel,

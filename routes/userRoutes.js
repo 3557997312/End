@@ -7,15 +7,16 @@ const userController = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // 创建用户
-router.post('/', authMiddleware ,userController.createUser);
+router.post('/', authMiddleware, userController.createUser);
+
 // 用户登录
 router.post('/login', userController.login);
 
 // 获取所有用户
-router.get('/', userController.getUsers);
+router.get('/', authMiddleware, userController.getUsers);
 
 // 根据用户名获取用户信息
-router.get('/:UserName', userController.getUser);
+router.get('/:UserName', authMiddleware, userController.getUser);
 
 // 根据用户名更新用户信息
 router.put('/', authMiddleware, userController.updateUser);

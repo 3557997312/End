@@ -15,7 +15,12 @@ router.get('/:BoxID1', connectionController.getConnection);
 router.get('/:BoxID2', connectionController.getConnection);
 
 // 根据参数获取指定的一个连接
-router.get('/:BoxID1/:BoxID2', connectionController.getConnection)
+router.get('/:BoxID1/:BoxID2', connectionController.getConnection);
+
+// 数据导出
+router.get('/exportCSV/:BoxID', connectionController.exportCSV);
+router.get('/exportXML/:BoxID', connectionController.exportCSV);
+router.get('/exportXLS/:BoxID1', connectionController.exportCSV);
 
 // 创建连接
 router.post('/', authMiddleware, connectionController.createConnection);

@@ -30,21 +30,13 @@ const authMiddleware = (req, res, next) => {
 
     // 检查用户是否为管理员
     if (req.user.Role !== 'admin') {
-      return res.status(403).json({ message: 'Unauthorized12' });
+      return res.status(403).json({ message: 'Unauthorized' });
     }
 
     // 继续处理下一个中间件或路由处理函数
     next();
-  } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({ message: 'Token expired' });
-    } else if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ message: 'Invalid authorization token' });
-    } else if (error instanceof jwt.NotBeforeError) {
-      return res.status(401).json({ message: 'Token not yet valid' });
-    } else {
-      return res.status(401).json({ message: 'Invalid authorization token' });
-    }
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid authorization token' });
   }
 };
 
