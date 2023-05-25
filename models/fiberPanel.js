@@ -1,7 +1,7 @@
 /* 纤盘 */
 
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { sequelize } = require('../config/config');
 const Site = require('./site');
 const ODF = require('./odf');
 

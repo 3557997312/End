@@ -3,18 +3,14 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-require('dotenv').config();
+
+const { generateToken } = require('../utils/tokenUtils');
 
 // 创建用户
 exports.createUser = async (req, res) => {
   const { UserName, Password, Role } = req.body;
 
   try {
-    // 检查当前用户的权限
-    if (req.user.Role !== 'admin') {
-      return res.status(403).json({ message: 'no permission' });
-    }
-
     const salt = await bcrypt.genSalt(10);
 
     const hashedPassword = await bcrypt.hash(Password, salt);
@@ -46,11 +42,9 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    const secretKey = process.env.SECRET_KEY;
+    const token = generateToken(user.UserID, user.Role);
 
-    const token = jwt.sign({UserID: user.UserID}, secretKey);
-
-    res.json({ token });
+    res.json({ token: `Bearer ${token}` });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -89,11 +83,6 @@ exports.updateUser = async (req, res) => {
   const { UserName, updateData } = req.body;
 
   try {
-    // 检查当前用户权限
-    if (req.user.Role !== 'admin') {
-      return res.status(403).json({ message: 'no permission' });
-    }
-
     const user = await User.findOne({ where: { UserName } });
 
     if (!user) {
@@ -121,11 +110,6 @@ exports.deleteUser = async (req, res) => {
   const { UserName } = req.params;
 
   try {
-    // 检查当前用户权限
-    if (req.user.Role !== 'admin') {
-      return res.status(403).json({ message: 'no permission' });
-    }
-
     const user = await User.findOne({ where: { UserName } });
     
     if (!user) {

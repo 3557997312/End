@@ -75,25 +75,17 @@ exports.getSite = async (req, res) => {
 exports.createSite = async (req, res) => {
   const { SiteName, VoltageLevel, GeographicInfo } = req.body;
 
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-
   if (!SiteName || !VoltageLevel || !GeographicInfo) {
     return res.status(400).json({ message: '必填字段不能为空' });
   }
 
   try {
     // 创建新的站点对象
-    const newSite = new Site({
+    await Site.create({
       SiteName,
       VoltageLevel,
       GeographicInfo,
     });
-
-    // 将新站点保存到数据库
-    const savedSite = await newSite.save();
 
     // 返回创建成功的站点信息
     res.status(201).json({ message: 'Site created successfully' });
@@ -105,12 +97,6 @@ exports.createSite = async (req, res) => {
 // 根据参数更新对应的站点信息
 exports.updateSite = async (req, res) => {
   const { parameter, updatedData } = req.body;
-
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
 
   try {
     let condition = {};
@@ -168,12 +154,6 @@ exports.updateSite = async (req, res) => {
 // 根据参数删除对应的站点
 exports.deleteSite = async (req, res) => {
   const { SiteName, VoltageLevel, GeographicInfo } = req.params;
-
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
 
   // const { parameter, value } = req.params;
 

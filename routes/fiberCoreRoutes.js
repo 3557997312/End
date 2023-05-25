@@ -2,6 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
 
 // 导入站点控制器
 const fiberCoreController = require('../controllers/fiberCoreController');
@@ -17,16 +18,16 @@ router.get('/number/:CoreNumber', fiberCoreController.getFiberCore);
 router.get('/status/:Status', fiberCoreController.getFiberCore);
 
 // 创建纤芯
-router.post('/', fiberCoreController.createFiberCore);
+router.post('/', authMiddleware, fiberCoreController.createFiberCore);
 
 // 根据参数更新对应纤芯的信息
-router.put('/', fiberCoreController.updateFiberCore);
+router.put('/', authMiddleware, fiberCoreController.updateFiberCore);
 
 // 根据参数删除对应纤芯的信息
-router.delete('/SiteID/:SiteID', fiberCoreController.deleteFiberCore);
-router.delete('/BoxID/:BoxID', fiberCoreController.deleteFiberCore);
-router.delete('/PanelID/:PanelID', fiberCoreController.deleteFiberCore);
-router.delete('/number/:CoreNumber', fiberCoreController.deleteFiberCore);
-router.delete('/status/:Status', fiberCoreController.deleteFiberCore);
+router.delete('/SiteID/:SiteID', authMiddleware, fiberCoreController.deleteFiberCore);
+router.delete('/BoxID/:BoxID', authMiddleware, fiberCoreController.deleteFiberCore);
+router.delete('/PanelID/:PanelID', authMiddleware, fiberCoreController.deleteFiberCore);
+router.delete('/number/:CoreNumber', authMiddleware, fiberCoreController.deleteFiberCore);
+router.delete('/status/:Status', authMiddleware, fiberCoreController.deleteFiberCore);
 
 module.exports = router;

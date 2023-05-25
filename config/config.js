@@ -1,5 +1,4 @@
-/* 数据库连接配置文件 */
-
+const crypto = require('crypto');
 const Sequelize = require('sequelize');
 
 const databaseConfig = {
@@ -15,4 +14,7 @@ const sequelize = new Sequelize(databaseConfig.database, databaseConfig.username
   dialect: databaseConfig.dialect,
 });
 
-module.exports = sequelize;
+module.exports = {
+  sequelize,
+  SECRET_KEY: 'hhhhh',
+};

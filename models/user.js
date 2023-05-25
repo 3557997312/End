@@ -1,7 +1,7 @@
 /* 账户 */
 
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { sequelize } = require('../config/config');
 
 const User = sequelize.define('User', {
   UserID: {

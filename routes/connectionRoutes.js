@@ -2,6 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
 
 // 导入站点控制器
 const connectionController = require('../controllers/connectionController');
@@ -17,12 +18,12 @@ router.get('/:BoxID2', connectionController.getConnection);
 router.get('/:BoxID1/:BoxID2', connectionController.getConnection)
 
 // 创建连接
-router.post('/', connectionController.createConnection);
+router.post('/', authMiddleware, connectionController.createConnection);
 
 // 根据参数更新连接信息
-router.put('/:BoxID1/:BoxID2', connectionController.updateConnection);
+router.put('/:BoxID1/:BoxID2', authMiddleware, connectionController.updateConnection);
 
 // 根据参数删除连接信息
-router.delete('/:BoxID1/:BoxID2', connectionController.deleteConnection);
+router.delete('/:BoxID1/:BoxID2', authMiddleware, connectionController.deleteConnection);
 
 module.exports = router;

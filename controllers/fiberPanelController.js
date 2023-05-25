@@ -67,12 +67,6 @@ exports.getFiberPanel = async (req, res) => {
 exports.createFiberPanel = async (req, res) => {
   const { SiteID, BoxID, PanelName } = req.body;
 
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
-
   try {
     // 检查SiteID对应的站点是否存在
     const site = await Site.findByPk(SiteID);
@@ -100,12 +94,6 @@ exports.createFiberPanel = async (req, res) => {
 // 根据参数更新对应纤盘信息
 exports.updateFiberPanel = async (req, res) => {
   const { parameter, updatedData } = req.body;
-
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
 
   try {
     let condition = {};
@@ -178,12 +166,6 @@ exports.updateFiberPanel = async (req, res) => {
 // 根据参数删除纤盘的信息
 exports.deleteFiberPanel = async (req, res) => {
   const { SiteID, BoxID, PanelName } = req.params;
-
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
 
   try {
     let condition = {};

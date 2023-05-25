@@ -1,7 +1,7 @@
 /* 站点数据模型 */
 
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { sequelize } = require('../config/config');
 
 const Site = sequelize.define('Site', {
   SiteID: {

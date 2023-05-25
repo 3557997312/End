@@ -129,11 +129,6 @@ exports.getConnection = async (req, res) => {
 
 // 创建连接
 exports.createConnection = async (req, res) => {
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
 
   try {
     const { BoxID1, BoxID2 } = req.body;
@@ -167,13 +162,8 @@ exports.updateConnection = async (req, res) => {
   const { updatedData } = req.body;
   const { BoxID1, BoxID2 } = req.params;
 
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
-
   try {
+
     if (BoxID1 === BoxID2) {
       return res.status(400).json({ message: 'BoxID1 cannot be the same as BoxID2' });
     }
@@ -222,12 +212,6 @@ exports.updateConnection = async (req, res) => {
 // 根据参数删除连接信息
 exports.deleteConnection = async (req, res) => {
   const { BoxID1, BoxID2 } = req.params;
-
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
   
   try {
     const box1 = await ODF.findByPk(BoxID1);

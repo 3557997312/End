@@ -2,6 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
 
 // 导入站点控制器
 const odfController = require('../controllers/odfController');
@@ -16,15 +17,15 @@ router.get('/SiteID/:SiteID', odfController.getOdf);
 // router.get('/:parameter/:value', odfController.getOdf);
 
 // 创建新配线单元盒
-router.post('/', odfController.createBox);
+router.post('/', authMiddleware, odfController.createBox);
 
 // 根据参数更新对应的配线单元盒信息
-router.put('/', odfController.updateOdf);
+router.put('/', authMiddleware, odfController.updateOdf);
 
 // 根据参数删除对应的配线单元盒信息
-router.delete('/name/:BoxName', odfController.deleteOdf);
-router.delete('/SiteID/:SiteID', odfController.deleteOdf);
+router.delete('/name/:BoxName', authMiddleware, odfController.deleteOdf);
+router.delete('/SiteID/:SiteID', authMiddleware, odfController.deleteOdf);
 
-// router.delete('/:parameter/:value', odfController.deleteOdf);
+// router.delete('/:parameter/:value', authMiddleware, odfController.deleteOdf);
 
 module.exports = router;

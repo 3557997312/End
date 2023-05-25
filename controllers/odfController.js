@@ -54,12 +54,6 @@ exports.getOdf = async (req, res) => {
 exports.createBox = async (req, res) => {
   const { SiteID, BoxName, MaxDiscCount } = req.body;
 
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
-
   try {
     // 检查 SiteID 对应的站点是否存在
     const site = await Site.findByPk(SiteID);
@@ -84,12 +78,6 @@ exports.createBox = async (req, res) => {
 // 根据参数更新配线单元盒信息
 exports.updateOdf = async (req, res) => {
   const { parameter, updatedData } = req.body;
-
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
 
   try {
     let condition = {};
@@ -152,12 +140,6 @@ exports.updateOdf = async (req, res) => {
 // 根据参数删除对应的配线单元盒信息
 exports.deleteOdf = async (req, res) => {
   const { BoxName, SiteID } = req.params;
-
-  // 检查当前用户的权限
-  if (req.user.Role !== 'admin') {
-    return res.status(403).json({ message: 'no permission' });
-  }
-  
 
   // const { parameter, value } = req.params;
 

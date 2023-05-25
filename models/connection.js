@@ -1,7 +1,7 @@
 /* 连接 */
 
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { sequelize } = require('../config/config');
 const ODF = require('./odf');
 
 const Connection = sequelize.define('Connection', {

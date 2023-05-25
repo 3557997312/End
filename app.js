@@ -9,11 +9,10 @@ const apiRoutes = require('./routes/api');
 
 // 中间件
 app.use(express.json()); // 解析请求体中的 JSON 数据
-
 app.use(cors());
 
-// 路由
-app.use('/api', apiRoutes); // 将路由文件挂载到 '/api' 路径
+// 路由, 将路由文件挂载到 '/api' 路径
+app.use('/api', apiRoutes);
 
 // 启动服务器
 app.listen(port, () => {

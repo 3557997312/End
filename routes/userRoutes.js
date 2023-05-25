@@ -4,9 +4,10 @@ const express = require('express');
 const router = express.Router();
 
 const userController = require('../controllers/userController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // 创建用户
-router.post('/', userController.createUser);
+router.post('/', authMiddleware ,userController.createUser);
 // 用户登录
 router.post('/login', userController.login);
 
@@ -17,9 +18,9 @@ router.get('/', userController.getUsers);
 router.get('/:UserName', userController.getUser);
 
 // 根据用户名更新用户信息
-router.put('/', userController.updateUser);
+router.put('/', authMiddleware, userController.updateUser);
 
 // 根据用户名删除用户信息
-router.delete('/:UserName', userController.deleteUser);
+router.delete('/:UserName', authMiddleware, userController.deleteUser);
 
 module.exports = router;
