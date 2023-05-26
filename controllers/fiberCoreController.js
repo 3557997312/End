@@ -92,6 +92,13 @@ exports.createFiberCore = async (req, res) => {
       return res.status(404).json({ message: 'Panel not found' });
     }
 
+    // 判断该纤芯所属纤盘内的纤芯数是否超出最大容量
+    const FiberCount = panel.FiberCount;
+    const fiberCoreCount = await FiberCore.count({ where: { PanelID } });
+    if (fiberCoreCount >= FiberCount) {
+      return res.status(400).json({ message: 'The maximum number of cores in the panel tray has been reached' });
+    }
+
     await FiberCore.create({
       SiteID,
       BoxID,

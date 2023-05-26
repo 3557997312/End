@@ -79,6 +79,13 @@ exports.createFiberPanel = async (req, res) => {
       return res.status(404).json({ message: 'BoxID with Odf not found' });
     }
 
+    // 判断该纤盘所属配线单元盒内的纤盘数是否超出最大容量
+    const MaxDiscCount = box.MaxDiscCount;
+    const fiberPanelCount = await FiberPanel.count({ where: { BoxID } });
+    if (fiberPanelCount >= MaxDiscCount) {
+      return res.status(400).json({ message: 'The number of pannel  in the wiring unit box is full' });
+    }
+
     await FiberPanel.create({
       SiteID,
       BoxID,
