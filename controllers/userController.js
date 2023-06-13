@@ -10,6 +10,11 @@ const { generateToken } = require('../utils/tokenUtils');
 exports.createUser = async (req, res) => {
   const { UserName, Password, Role } = req.body;
 
+  const user = await User.findOne(UserName);
+  if (user) {
+    return res.status(400).json({ message: 'user already exists' });
+  }
+
   try {
     const salt = await bcrypt.genSalt(10);
 
